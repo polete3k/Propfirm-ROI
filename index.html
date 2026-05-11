@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0a0a0f">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%236366f1'/><text x='50' y='68' font-size='55' text-anchor='middle'>📊</text></svg>">
+<title>PropFirm ROI</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--bg:#0a0a0f;--c1:#12121c;--c2:#1a1a2e;--c3:#222238;--brd:rgba(99,102,241,.1);--brd2:rgba(99,102,241,.25);--tx:#e2e8f0;--tx2:#94a3b8;--tx3:#64748b;--pr:#6366f1;--pr2:#818cf8;--g:#22c55e;--r:#ef4444;--am:#f59e0b;--bl:#3b82f6;--pk:#f43f5e;--font:'Inter',system-ui,-apple-system,sans-serif}
+html{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--tx);font-family:var(--font);font-size:14px;height:100%;overflow:hidden;display:flex;flex-direction:column;position:fixed;width:100%;touch-action:pan-y}
+
+/* Header */
+.hd{padding:max(env(safe-area-inset-top),12px) 16px 10px;border-bottom:1px solid var(--brd);flex-shrink:0}
+.hd-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.logo{display:flex;align-items:center;gap:10px}
+.logo i{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--pr),#ec4899);display:flex;align-items:center;justify-content:center;font-size:15px;font-style:normal}
+.logo b{font-size:15px;letter-spacing:.3px}
+.logo small{font-size:9px;color:var(--tx3);letter-spacing:1.5px;display:block;margin-top:1px}
+.tabs{display:flex;gap:5px}
+.tab{padding:7px 14px;border-radius:9px;border:none;cursor:pointer;font-size:11px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;background:rgba(99,102,241,.06);color:var(--tx3);font-family:var(--font);transition:all .15s}
+.tab.on{background:linear-gradient(135deg,var(--pr),#8b5cf6);color:#fff}
+
+/* Scroll area */
+.scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:14px 16px 100px}
+
+/* Floating actions */
+.fab-row{position:fixed;bottom:max(env(safe-area-inset-bottom),16px);left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:50;background:rgba(10,10,15,.92);backdrop-filter:blur(12px);padding:8px 14px;border-radius:16px;border:1px solid var(--brd2)}
+.fab{border:none;border-radius:10px;cursor:pointer;font-weight:700;font-family:var(--font);font-size:12px;padding:9px 16px;display:flex;align-items:center;gap:5px;transition:all .15s}
+.fab-p{background:linear-gradient(135deg,var(--pr),#8b5cf6);color:#fff}
+.fab-g{background:rgba(99,102,241,.1);color:var(--pr2)}
+.fab-s{background:rgba(34,197,94,.12);color:var(--g)}
+
+/* Cards */
+.card{background:linear-gradient(145deg,var(--c1),var(--c2));border:1px solid var(--brd);border-radius:14px;padding:16px;margin-bottom:10px}
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.sc{background:linear-gradient(145deg,var(--c1),var(--c2));border:1px solid var(--brd);border-radius:12px;padding:14px}
+.sc-l{font-size:10px;color:var(--tx3);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:6px;font-weight:600}
+.sc-v{font-size:22px;font-weight:800;line-height:1}
+.sc-s{font-size:11px;color:var(--tx3);margin-top:4px}
+.sec{font-size:10px;color:var(--tx3);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:8px;font-weight:600}
+
+/* Firm cards */
+.fc{background:linear-gradient(145deg,var(--c1),var(--c2));border:1px solid var(--brd);border-radius:14px;overflow:hidden;margin-bottom:10px;transition:border-color .15s}
+.fc.open{border-color:var(--brd2)}
+.fc-h{padding:14px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+.fc-name{font-size:15px;font-weight:700}
+.fc-sub{font-size:11px;color:var(--tx3);margin-top:2px}
+.fc-nums{display:flex;gap:14px;align-items:center}
+.fc-n{text-align:right}
+.fc-nl{font-size:9px;color:var(--tx3);font-weight:600;letter-spacing:.5px}
+.fc-nv{font-weight:700;font-size:13px}
+.fc-arr{font-size:14px;transition:transform .2s;color:var(--tx3)}
+.fc-body{border-top:1px solid var(--brd);padding:14px 16px}
+
+/* Items */
+.item{background:rgba(0,0,0,.2);border-radius:10px;padding:10px 12px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px}
+.badge{display:inline-block;padding:3px 9px;border-radius:16px;font-size:10px;font-weight:700;letter-spacing:.3px}
+.b-passed{background:rgba(34,197,94,.12);color:var(--g)}
+.b-failed{background:rgba(239,68,68,.12);color:var(--r)}
+.b-active{background:rgba(245,158,11,.12);color:var(--am)}
+.b-funded{background:rgba(59,130,246,.12);color:var(--bl)}
+.sel{background:var(--bg);border:1px solid rgba(99,102,241,.15);border-radius:6px;color:var(--tx);font-size:10px;padding:4px 6px;font-family:var(--font)}
+.del{background:none;border:none;color:var(--r);cursor:pointer;font-size:13px;opacity:.5;padding:4px}
+.btn-d{border:none;border-radius:8px;cursor:pointer;font-weight:600;font-family:var(--font);font-size:11px;padding:7px 14px;background:rgba(239,68,68,.1);color:var(--r)}
+
+/* Transaction rows */
+.tx{background:linear-gradient(145deg,var(--c1),var(--c2));border:1px solid rgba(99,102,241,.06);border-radius:10px;padding:10px 14px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.tx-i{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+
+/* Chart area */
+.chart-wrap{position:relative;height:180px;margin-top:4px}
+
+/* Modal */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);display:flex;align-items:flex-end;justify-content:center;z-index:200;animation:fadeIn .2s}
+.modal{background:linear-gradient(145deg,var(--c1),var(--c2));border:1px solid var(--brd2);border-radius:20px 20px 0 0;padding:24px 20px max(env(safe-area-inset-bottom),24px);width:100%;max-width:500px;max-height:85vh;overflow-y:auto}
+.modal-bar{width:36px;height:4px;border-radius:2px;background:var(--tx3);margin:0 auto 16px;opacity:.4}
+.m-title{font-size:17px;font-weight:700;margin-bottom:18px;text-align:center}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:10px;color:var(--tx2);margin-bottom:5px;letter-spacing:.8px;text-transform:uppercase;font-weight:600}
+.field input,.field select{width:100%;padding:11px 14px;background:var(--bg);border:1px solid rgba(99,102,241,.15);border-radius:10px;color:var(--tx);font-size:14px;outline:none;font-family:var(--font);-webkit-appearance:none}
+.field select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2394a3b8'%3E%3Cpath d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+.field input:focus,.field select:focus{border-color:var(--pr)}
+.submit{width:100%;padding:13px;border:none;border-radius:12px;background:linear-gradient(135deg,var(--pr),#8b5cf6);color:#fff;font-size:14px;font-weight:700;font-family:var(--font);cursor:pointer;margin-top:4px}
+
+/* Empty */
+.empty{text-align:center;padding:40px 20px;color:var(--tx3)}
+.empty-ic{font-size:40px;margin-bottom:12px}
+
+/* Toast */
+.toast{position:fixed;top:max(env(safe-area-inset-top),12px);left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--pr),#8b5cf6);color:#fff;padding:10px 22px;border-radius:12px;font-size:13px;font-weight:600;z-index:300;box-shadow:0 8px 32px rgba(99,102,241,.4);animation:slideDown .3s;white-space:nowrap}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideDown{from{opacity:0;transform:translateX(-50%) translateY(-20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+select option{background:var(--bg);color:var(--tx)}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<div class="hd">
+  <div class="hd-top">
+    <div class="logo"><i>📊</i><div><b>PropFirm ROI</b><small>TRACKER</small></div></div>
+  </div>
+  <div class="tabs" id="tabs"></div>
+</div>
+<div class="scroll" id="main"></div>
+<div class="fab-row">
+  <button class="fab fab-p" onclick="openModal('firm')">+ Firm</button>
+  <button class="fab fab-g" onclick="openModal('exam')">+ Examen</button>
+  <button class="fab fab-s" onclick="openModal('payout')">+ Payout</button>
+</div>
+<div id="modal-root"></div>
+<div id="toast-root"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+const KEY='pf-roi-v1';
+let D=load();
+let view='dashboard';
+let openFirmId=null;
+let charts={};
+
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||df()}catch{return df()}}
+function df(){return{firms:[],nid:1}}
+function save(){localStorage.setItem(KEY,JSON.stringify(D))}
+function gid(){return D.nid++}
+function fmt(n){return n>=1000?'$'+(n/1000).toFixed(n%1000===0?0:1)+'k':'$'+n.toLocaleString()}
+function today(){return new Date().toISOString().split('T')[0]}
+
+// Toast
+let tt;
+function toast(m){
+  clearTimeout(tt);
+  const r=document.getElementById('toast-root');
+  r.innerHTML=`<div class="toast">${m}</div>`;
+  tt=setTimeout(()=>r.innerHTML='',2500);
+}
+
+// Stats
+function stats(){
+  let ti=0,tp=0,te=0,pa=0,fa=0,ac=0,fu=0;
+  const fs=D.firms.map(f=>{
+    const inv=f.exams.reduce((s,e)=>s+e.cost,0);
+    const pay=f.payouts.reduce((s,p)=>s+p.amount,0);
+    ti+=inv;tp+=pay;te+=f.exams.length;
+    f.exams.forEach(e=>{if(e.st==='passed')pa++;else if(e.st==='failed')fa++;else if(e.st==='funded')fu++;else ac++});
+    return{name:f.name,id:f.id,inv,pay,roi:inv>0?(((pay-inv)/inv)*100).toFixed(1):0}
+  });
+  const mm={};
+  D.firms.forEach(f=>{
+    f.exams.forEach(e=>{const m=e.date?.substring(0,7)||'?';if(!mm[m])mm[m]={m,i:0,p:0};mm[m].i+=e.cost});
+    f.payouts.forEach(p=>{const m=p.date?.substring(0,7)||'?';if(!mm[m])mm[m]={m,i:0,p:0};mm[m].p+=p.amount});
+  });
+  const mo=Object.values(mm).sort((a,b)=>a.m.localeCompare(b.m));
+  return{ti,tp,te,pa,fa,ac,fu,roi:ti>0?(((tp-ti)/ti)*100).toFixed(1):0,net:tp-ti,fs,mo}
+}
+
+// Tabs
+function renderTabs(){
+  const t=document.getElementById('tabs');
+  t.innerHTML=['dashboard','firms','history'].map(v=>
+    `<button class="tab ${view===v?'on':''}" onclick="setView('${v}')">${v==='dashboard'?'Dashboard':v==='firms'?'Propfirms':'Historial'}</button>`
+  ).join('');
+}
+
+function setView(v){view=v;render()}
+
+// Charts
+function renderCharts(s){
+  Object.values(charts).forEach(c=>c.destroy());charts={};
+  if(s.mo.length>0){
+    const c=document.getElementById('ch-mo');
+    if(c)charts.mo=new Chart(c,{type:'bar',data:{labels:s.mo.map(m=>m.m),datasets:[{label:'Invertido',data:s.mo.map(m=>m.i),backgroundColor:'#f43f5e',borderRadius:4},{label:'Payouts',data:s.mo.map(m=>m.p),backgroundColor:'#22c55e',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#94a3b8',font:{size:10,family:'Inter'}}}},scales:{x:{ticks:{color:'#64748b',font:{size:9}},grid:{display:false}},y:{ticks:{color:'#64748b',font:{size:9}},grid:{color:'rgba(99,102,241,.06)'}}}}});
+  }
+  const pv=[s.pa,s.fa,s.ac,s.fu];
+  if(pv.some(v=>v>0)){
+    const c=document.getElementById('ch-st');
+    if(c)charts.st=new Chart(c,{type:'doughnut',data:{labels:['Passed','Failed','Activo','Funded'],datasets:[{data:pv,backgroundColor:['#22c55e','#ef4444','#f59e0b','#3b82f6'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'right',labels:{color:'#94a3b8',font:{size:10,family:'Inter'},padding:10,usePointStyle:true}}}}});
+  }
+  if(s.fs.length>0){
+    const c=document.getElementById('ch-roi');
+    if(c)charts.roi=new Chart(c,{type:'bar',data:{labels:s.fs.map(f=>f.name),datasets:[{data:s.fs.map(f=>+f.roi),backgroundColor:s.fs.map(f=>+f.roi>=0?'#22c55e':'#ef4444'),borderRadius:4}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#64748b',font:{size:9},callback:v=>v+'%'},grid:{color:'rgba(99,102,241,.06)'}},y:{ticks:{color:'#94a3b8',font:{size:10}},grid:{display:false}}}}});
+  }
+}
+
+function bl(st){return`badge b-${st}`}
+function bn(st){return{passed:'Passed',failed:'Failed',active:'Activo',funded:'Funded'}[st]||st}
+
+// Main render
+function render(){
+  renderTabs();
+  const el=document.getElementById('main');
+  const s=stats();
+  let h='';
+
+  if(view==='dashboard'){
+    const rc=+s.roi>=0?'var(--g)':'var(--r)';
+    const nc=s.net>=0?'var(--g)':'var(--r)';
+    h+=`<div class="sg">
+      <div class="sc"><div class="sc-l">Invertido</div><div class="sc-v">${fmt(s.ti)}</div></div>
+      <div class="sc"><div class="sc-l">Payouts</div><div class="sc-v" style="color:var(--g)">${fmt(s.tp)}</div></div>
+      <div class="sc"><div class="sc-l">Neto</div><div class="sc-v" style="color:${nc}">${s.net>=0?'+':''}${fmt(s.net)}</div></div>
+      <div class="sc"><div class="sc-l">ROI</div><div class="sc-v" style="color:${rc}">${s.roi}%</div><div class="sc-s">${s.te} exámenes</div></div>
+    </div>`;
+    if(s.mo.length>0) h+=`<div class="card"><div class="sec">Inversión vs Payouts</div><div class="chart-wrap"><canvas id="ch-mo"></canvas></div></div>`;
+    if(s.pa+s.fa+s.ac+s.fu>0) h+=`<div class="card"><div class="sec">Estado Exámenes</div><div class="chart-wrap"><canvas id="ch-st"></canvas></div></div>`;
+    if(s.fs.length>0) h+=`<div class="card"><div class="sec">ROI por Propfirm</div><div class="chart-wrap" style="height:${Math.max(140,s.fs.length*44)}px"><canvas id="ch-roi"></canvas></div></div>`;
+    if(D.firms.length===0) h+=`<div class="empty"><div class="empty-ic">🏦</div><div style="font-weight:600;margin-bottom:4px">No hay propfirms</div><div style="font-size:12px">Pulsa "+ Firm" para empezar</div></div>`;
+  }
+
+  if(view==='firms'){
+    if(D.firms.length===0) h+=`<div class="empty"><div class="empty-ic">🏦</div><div>Añade tu primera propfirm</div></div>`;
+    D.firms.forEach(f=>{
+      const inv=f.exams.reduce((s,e)=>s+e.cost,0);
+      const pay=f.payouts.reduce((s,p)=>s+p.amount,0);
+      const roi=inv>0?(((pay-inv)/inv)*100).toFixed(1):0;
+      const op=openFirmId===f.id;
+      h+=`<div class="fc${op?' open':''}">
+        <div class="fc-h" onclick="toggleFirm(${f.id})">
+          <div><div class="fc-name">${f.name}</div><div class="fc-sub">${f.exams.length} exám · ${f.exams.filter(e=>e.st==='funded').length} funded</div></div>
+          <div class="fc-nums">
+            <div class="fc-n"><div class="fc-nl">INV</div><div class="fc-nv" style="color:var(--pk)">${fmt(inv)}</div></div>
+            <div class="fc-n"><div class="fc-nl">PAY</div><div class="fc-nv" style="color:var(--g)">${fmt(pay)}</div></div>
+            <div class="fc-n"><div class="fc-nl">ROI</div><div class="fc-nv" style="color:${+roi>=0?'var(--g)':'var(--r)'}">${roi}%</div></div>
+            <span class="fc-arr" style="transform:rotate(${op?180:0}deg)">▾</span>
+          </div>
+        </div>`;
+      if(op){
+        h+=`<div class="fc-body"><div class="sec">Exámenes</div>`;
+        if(f.exams.length===0)h+=`<div style="color:var(--tx3);font-size:12px;margin-bottom:8px">Sin exámenes</div>`;
+        f.exams.forEach(e=>{
+          h+=`<div class="item">
+            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+              <span class="${bl(e.st)}">${bn(e.st)}</span>
+              <span style="font-size:12px">${e.phase}</span>
+              ${e.size?`<span style="font-size:11px;color:var(--tx3)">${e.size}</span>`:''}
+              <span style="font-size:11px;color:var(--tx3)">${e.date}</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:5px">
+              <span style="font-weight:700;color:var(--pk);font-size:13px">${fmt(e.cost)}</span>
+              <select class="sel" onchange="updSt(${f.id},${e.id},this.value)">
+                ${['active','passed','failed','funded'].map(s=>`<option value="${s}"${e.st===s?' selected':''}>${bn(s)}</option>`).join('')}
+              </select>
+              <button class="del" onclick="delExam(${f.id},${e.id})">✕</button>
+            </div>
+          </div>`;
+        });
+        h+=`<div class="sec" style="margin-top:14px">Payouts</div>`;
+        if(f.payouts.length===0)h+=`<div style="color:var(--tx3);font-size:12px;margin-bottom:8px">Sin payouts</div>`;
+        f.payouts.forEach(p=>{
+          h+=`<div class="item">
+            <div style="display:flex;align-items:center;gap:6px">
+              <span style="font-weight:700;color:var(--g)">+${fmt(p.amount)}</span>
+              <span style="font-size:11px;color:var(--tx3)">${p.date}</span>
+              ${p.notes?`<span style="font-size:11px;color:var(--tx3)">· ${p.notes}</span>`:''}
+            </div>
+            <button class="del" onclick="delPay(${f.id},${p.id})">✕</button>
+          </div>`;
+        });
+        h+=`<button class="btn-d" style="margin-top:10px" onclick="delFirm(${f.id})">Eliminar Propfirm</button></div>`;
+      }
+      h+=`</div>`;
+    });
+  }
+
+  if(view==='history'){
+    const txs=[];
+    D.firms.forEach(f=>{
+      f.exams.forEach(e=>txs.push({t:'e',firm:f.name,date:e.date,amt:-e.cost,phase:e.phase,st:e.st,size:e.size}));
+      f.payouts.forEach(p=>txs.push({t:'p',firm:f.name,date:p.date,amt:p.amount,notes:p.notes}));
+    });
+    txs.sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+    h+=`<div class="sec" style="margin-bottom:10px">Transacciones</div>`;
+    if(txs.length===0)h+=`<div class="empty">Sin transacciones</div>`;
+    txs.forEach(tx=>{
+      h+=`<div class="tx">
+        <div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1">
+          <div class="tx-i" style="background:${tx.t==='p'?'rgba(34,197,94,.1)':'rgba(244,63,94,.1)'}">${tx.t==='p'?'💰':'📝'}</div>
+          <div style="min-width:0;flex:1">
+            <div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${tx.firm}</div>
+            <div style="font-size:10px;color:var(--tx3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${tx.t==='e'?`${tx.phase}${tx.size?' · '+tx.size:''}`:tx.notes||'Payout'}${tx.st?' · <span class="'+bl(tx.st)+'">'+bn(tx.st)+'</span>':''}</div>
+          </div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-weight:700;font-size:13px;color:${tx.amt>=0?'var(--g)':'var(--pk)'}">${tx.amt>=0?'+':''}${fmt(Math.abs(tx.amt))}</div>
+          <div style="font-size:10px;color:var(--tx3)">${tx.date}</div>
+        </div>
+      </div>`;
+    });
+  }
+
+  el.innerHTML=h;
+  if(view==='dashboard')setTimeout(()=>renderCharts(s),50);
+}
+
+function toggleFirm(id){openFirmId=openFirmId===id?null:id;render()}
+
+// ── Actions ──
+function updSt(fid,eid,st){const f=D.firms.find(f=>f.id===fid);if(!f)return;const e=f.exams.find(e=>e.id===eid);if(!e)return;e.st=st;save();render()}
+function delExam(fid,eid){const f=D.firms.find(f=>f.id===fid);if(!f)return;f.exams=f.exams.filter(e=>e.id!==eid);save();render();toast('Examen eliminado')}
+function delPay(fid,pid){const f=D.firms.find(f=>f.id===fid);if(!f)return;f.payouts=f.payouts.filter(p=>p.id!==pid);save();render();toast('Payout eliminado')}
+function delFirm(id){D.firms=D.firms.filter(f=>f.id!==id);if(openFirmId===id)openFirmId=null;save();render();toast('Eliminada')}
+
+// ── Modals ──
+function openModal(type){
+  const mr=document.getElementById('modal-root');
+  let title,fields;
+  if(type==='firm'){
+    title='Añadir Propfirm';
+    fields=[{k:'name',l:'Nombre',ph:'Ej: FTMO, MFF, TFT...'}];
+  }else if(type==='exam'){
+    title='Añadir Examen';
+    fields=[
+      {k:'firm',l:'Propfirm',opts:D.firms.map(f=>({v:f.id,l:f.name}))},
+      {k:'cost',l:'Coste ($)',t:'number',ph:'155'},
+      {k:'size',l:'Tamaño cuenta',ph:'$50,000'},
+      {k:'phase',l:'Fase',opts:['Phase 1','Phase 2','Funded'].map(p=>({v:p,l:p}))},
+      {k:'status',l:'Estado',opts:[{v:'active',l:'Activo'},{v:'passed',l:'Passed'},{v:'failed',l:'Failed'},{v:'funded',l:'Funded'}]},
+      {k:'date',l:'Fecha',t:'date'}
+    ];
+  }else{
+    title='Añadir Payout';
+    fields=[
+      {k:'firm',l:'Propfirm',opts:D.firms.map(f=>({v:f.id,l:f.name}))},
+      {k:'amount',l:'Cantidad ($)',t:'number',ph:'500'},
+      {k:'date',l:'Fecha',t:'date'},
+      {k:'notes',l:'Notas',ph:'Opcional'}
+    ];
+  }
+
+  let h=`<div class="modal-bg" onclick="if(event.target===this)closeModal()"><div class="modal"><div class="modal-bar"></div><div class="m-title">${title}</div>`;
+  fields.forEach(f=>{
+    h+=`<div class="field"><label>${f.l}</label>`;
+    if(f.opts)h+=`<select data-k="${f.k}"><option value="">Seleccionar...</option>${f.opts.map(o=>`<option value="${o.v}">${o.l}</option>`).join('')}</select>`;
+    else h+=`<input data-k="${f.k}" type="${f.t||'text'}" placeholder="${f.ph||''}" />`;
+    h+=`</div>`;
+  });
+  h+=`<button class="submit" onclick="submitModal('${type}')">${title}</button></div></div>`;
+  mr.innerHTML=h;
+  setTimeout(()=>{const fi=mr.querySelector('input');if(fi)fi.focus()},150);
+}
+
+function closeModal(){document.getElementById('modal-root').innerHTML=''}
+
+function getVals(){
+  const vals={};
+  document.querySelectorAll('#modal-root [data-k]').forEach(el=>vals[el.dataset.k]=el.value);
+  return vals;
+}
+
+function submitModal(type){
+  const v=getVals();
+  if(type==='firm'){
+    if(!v.name)return;
+    D.firms.push({id:gid(),name:v.name,exams:[],payouts:[]});
+    save();closeModal();render();toast(v.name+' añadida');
+  }else if(type==='exam'){
+    if(!v.firm||!v.cost)return;
+    const f=D.firms.find(f=>f.id===+v.firm);if(!f)return;
+    f.exams.push({id:gid(),cost:+v.cost,size:v.size||'',phase:v.phase||'Phase 1',st:v.status||'active',date:v.date||today()});
+    save();closeModal();render();toast('Examen añadido');
+  }else{
+    if(!v.firm||!v.amount)return;
+    const f=D.firms.find(f=>f.id===+v.firm);if(!f)return;
+    f.payouts.push({id:gid(),amount:+v.amount,date:v.date||today(),notes:v.notes||''});
+    save();closeModal();render();toast('Payout añadido');
+  }
+}
+
+// Boot
+render();
+</script>
+</body>
+</html>
